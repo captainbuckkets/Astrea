@@ -1,0 +1,337 @@
+//@version=3
+//edit2
+study("Astraea: Plantary Line Indicator (BennuQuants.net: Buckkets and GStructor)", overlay=true)
+
+projection = input(0, title="Date Projection")
+
+//TV constants
+y = year
+m = month
+D = dayofmonth + projection
+
+//pi constant
+pi = 3.14159265
+
+//Master Time Cycles
+multiplier = input(1, minval=.00001, step=.25)
+
+earth_multiplier = input(1, title="Earth Multiplier", minval=.00001, step=.25)
+moon_multiplier = input(1, title="Moon Multiplier", minval=.00001, step=.25)
+mercury_multiplier = input(1, title="Mercury Multiplier", minval=.00001, step=.25)
+venus_multiplier = input(1, title="Venus Multiplier", minval=.00001, step=.25)
+mars_multiplier = input(1, title="Mars Multiplier", minval=.00001, step=.25)
+jupiter_multiplier = input(1, title="Jupiter Multiplier", minval=.00001, step=.25)
+saturn_multiplier = input(1, title="Saturn Multiplier", minval=.00001, step=.25)
+uranus_multiplier = input(1, title="Uranus Multiplier", minval=.00001, step=.25)
+neptune_multiplier = input(1, title="Neptune Multiplier", minval=.00001, step=.25)
+
+guideoptions = input(defval="Standard", title="Level Type", options=["Standard", "Harmonic"])
+
+d = 367*y - 7 * ( y + (m+9)/12 ) / 4 + 275*m/9 + D - 730530
+
+earthswitch = input(false, title="Earth Switch")
+moonswitch = input(true, title="Moon Switch")
+mercuryswitch = input(false, title="Mercury Switch")
+venusswitch = input(false, title="Venus Switch")
+marsswitch = input(false, title="Mars Switch")
+jupiterswitch = input(false, title="Jupiter Switch")
+saturnswitch = input(false, title="Saturn Switch")
+uranusswitch = input(false, title="Uranus Switch")
+neptuneswitch = input(false, title="Neptune Switch")
+
+//N = longitude of the ascending node
+//i = inclination to the ecliptic (plane of the Earth's orbit)
+//w = argument of perihelion
+//a = semi-major axis, or mean distance from earth
+//e = eccentricity (0=circle, 0-1=ellipse, 1=parabola)
+//M = mean anomaly (0 at perihelion; increases uniformly with time)
+
+//Rev function
+rev(x)=>
+    answer = x - floor(x / 360.00) * 360.00
+
+tracker = sin((rev(close * (pi/180))))
+
+//earth
+earth_M = 356.0470 + 0.9856002585 * d
+earth_w = 282.9404 + 4.70935E-5 * d
+
+earth = ((rev(earth_M + earth_w))*multiplier) + ((360*earth_multiplier) * multiplier)
+
+
+//moon
+moon_N = 125.1228 - 0.0529538083 * d
+moon_w = 318.0634 + 0.1643573223 * d
+moon_M = rev(115.3654 + 13.0649929509 * d)
+
+moon = ((rev(moon_M + moon_w + moon_N))*multiplier) + ((360*moon_multiplier) * multiplier)
+
+//mercury
+merc_N = 48.3313 + 3.24587E-5 * d
+merc_w = 29.1241 + 1.01444E-5 * d
+merc_M = rev(168.6562 + 4.0923344368 * d)
+
+mercury = ((rev(merc_M + merc_w + merc_N))*mercury_multiplier) + ((360*mercury_multiplier) * multiplier)
+
+//venus
+venus_N = 76.6799 + 2.46590E-5 * d
+venus_w = 54.8910 + 1.38374E-5 * d
+venus_M = rev(48.0052 + 1.6021302244 * d)
+
+venus = ((rev(venus_M + venus_w + venus_N))*venus_multiplier) + ((360*venus_multiplier) * multiplier)
+
+//mars
+mars_N = 49.5574 + 2.11081E-5 * d
+mars_w = 286.5016 + 2.92961E-5 * d
+mars_M = rev(18.6021 + 0.5240207766 * d)
+
+mars = ((rev(mars_M + mars_M + mars_N))*mars_multiplier) + ((360*mars_multiplier) * multiplier)
+
+//jupiter
+jup_N = 100.4542 + 2.76854E-5 * d
+jup_w = 273.8777 + 1.64505E-5 * d
+jup_M = rev(19.8950 + 0.0830853001 * d)
+
+jupiter = ((rev(jup_M + jup_w + jup_N))*jupiter_multiplier) + ((360*jupiter_multiplier) * multiplier)
+
+//saturn
+sat_N = 113.6634 + 2.38980E-5 * d
+sat_w = 339.3939 + 2.97661E-5 * d
+sat_M = rev(316.9670 + 0.0334442282 * d)
+
+saturn = ((rev(sat_M + sat_w + sat_N))*saturn_multiplier) + ((360*saturn_multiplier) * multiplier)
+
+//uranus
+ur_N = 74.0005 + 1.3978E-5 * d
+ur_w = 96.6612 + 3.0565E-5 * d
+ur_M = rev(142.5905 + 0.011725806 * d)
+
+uranus = ((rev(ur_M + ur_w + ur_N))*uranus_multiplier) + ((360*uranus_multiplier) * multiplier)
+
+//neptune
+nep_N = 131.7806 + 3.0173E-5 * d
+nep_w = 272.8461 - 6.027E-6 * d
+nep_M = rev(260.2471 + 0.005995147 * d)
+
+neptune = ((rev(nep_M + nep_w + nep_N))*neptune_multiplier) + ((360*neptune_multiplier) * multiplier)
+
+//colors
+earthcolor = #0042A9
+mooncolor = #BFBFBF
+mercurycolor = #545454
+venuscolor = #E500C6
+marscolor = #E50800
+jupitercolor = #8F162C
+saturncolor = #E5CB00
+uranuscolor = #00A9A1
+neptunecolor = #9B00E0
+
+plot(earthswitch ? earth : na, title="Earth", color=earthcolor, linewidth=2, style=circles, offset=projection, transp=00, join=false)
+plot(moonswitch ? moon : na, title="Moon", color=mooncolor, linewidth=2, style=circles, offset=projection, transp=00, join=false)
+plot(mercuryswitch ? mercury : na, title="Mercury", color=mercurycolor, linewidth=2, style=circles, offset=projection, transp=00, join=false)
+plot(venusswitch ? venus : na, title="Venus", color=venuscolor, linewidth=2, style=circles, offset=projection, transp=00, join=false)
+plot(marsswitch ? mars : na, title="Mars", color=marscolor, linewidth=2, style=circles, offset=projection, transp=00, join=false)
+plot(jupiterswitch ? jupiter : na, title="Jupiter", color=jupitercolor, linewidth=2, style=circles, offset=projection, transp=00, join=false)
+plot(saturnswitch ? saturn : na, title="Saturn", color=saturncolor, linewidth=2, style=circles, offset=projection, transp=00, join=false)
+plot(uranusswitch ? uranus : na, title="Uranus", color=uranuscolor, linewidth=2, style=circles, offset=projection, transp=00, join=false)
+plot(neptuneswitch ? neptune : na, title="Neptune", color=neptunecolor, linewidth=2, style=circles, offset=projection, transp=00, join=false)
+
+firstrotswitch = input(true, title="Plot First Offset")
+secondrotswitch = input(false, title="Plot Second Offset")
+thirdrotswitch = input(false, title="Plot Third Offset")
+
+firstrot = input(90, minval=.0000001, title="Degrees of the first offset")
+secondrot = input(180,  minval=.0000001, title="Degrees of the second offset")
+thirdrot = input(270,  minval=.0000001, title="Degrees of the third offset")
+
+//Harmonic garbage
+
+earth_harmonic_pos2 = earth + (earth / 2)
+earth_harmonic_pos3 = earth + (earth / 3)
+earth_harmonic_pos4 = earth + (earth / 4)
+earth_harmonic_neg2 = earth - (earth / 2)
+earth_harmonic_neg3 = earth - (earth / 3)
+earth_harmonic_neg4 = earth - (earth / 4)
+
+moon_harmonic_pos2 = moon + (moon / 2)
+moon_harmonic_pos3 = moon + (moon / 3)
+moon_harmonic_pos4 = moon + (moon / 4)
+moon_harmonic_neg2 = moon - (moon / 2)
+moon_harmonic_neg3 = moon - (moon / 3)
+moon_harmonic_neg4 = moon - (moon / 4)
+
+mercury_harmonic_pos2 = mercury + (mercury / 2)
+mercury_harmonic_pos3 = mercury + (mercury / 3)
+mercury_harmonic_pos4 = mercury + (mercury / 4)
+mercury_harmonic_neg2 = mercury - (mercury / 2)
+mercury_harmonic_neg3 = mercury - (mercury / 3)
+mercury_harmonic_neg4 = mercury - (mercury / 4)
+
+venus_harmonic_pos2 = venus + (venus / 2)
+venus_harmonic_pos3 = venus + (venus / 3)
+venus_harmonic_pos4 = venus + (venus / 4)
+venus_harmonic_neg2 = venus - (venus / 2)
+venus_harmonic_neg3 = venus - (venus / 3)
+venus_harmonic_neg4 = venus - (venus / 4)
+
+mars_harmonic_pos2 = mars + (mars / 2)
+mars_harmonic_pos3 = mars + (mars / 3)
+mars_harmonic_pos4 = mars + (mars / 4)
+mars_harmonic_neg2 = mars - (mars / 2)
+mars_harmonic_neg3 = mars - (mars / 3)
+mars_harmonic_neg4 = mars - (mars / 4)
+
+jupiter_harmonic_pos2 = jupiter + (jupiter / 2)
+jupiter_harmonic_pos3 = jupiter + (jupiter / 3)
+jupiter_harmonic_pos4 = jupiter + (jupiter / 4)
+jupiter_harmonic_neg2 = jupiter - (jupiter / 2)
+jupiter_harmonic_neg3 = jupiter - (jupiter / 3)
+jupiter_harmonic_neg4 = jupiter - (jupiter / 4)
+
+saturn_harmonic_pos2 = saturn + (saturn / 2)
+saturn_harmonic_pos3 = saturn + (saturn / 3)
+saturn_harmonic_pos4 = saturn + (saturn / 4)
+saturn_harmonic_neg2 = saturn - (saturn / 2)
+saturn_harmonic_neg3 = saturn - (saturn / 3)
+saturn_harmonic_neg4 = saturn - (saturn / 4)
+
+uranus_harmonic_pos2 = uranus + (uranus / 2)
+uranus_harmonic_pos3 = uranus + (uranus / 3)
+uranus_harmonic_pos4 = uranus + (uranus / 4)
+uranus_harmonic_neg2 = uranus - (uranus / 2)
+uranus_harmonic_neg3 = uranus - (uranus / 3)
+uranus_harmonic_neg4 = uranus - (uranus / 4)
+
+neptune_harmonic_pos2 = neptune + (neptune / 2)
+neptune_harmonic_pos3 = neptune + (neptune / 3)
+neptune_harmonic_pos4 = neptune + (neptune / 4)
+neptune_harmonic_neg2 = neptune - (neptune / 2)
+neptune_harmonic_neg3 = neptune - (neptune / 3)
+neptune_harmonic_neg4 = neptune - (neptune / 4)
+
+//Standard
+earth_standard_pos1 = earth + ((thirdrot/360) * earth)
+earth_standard_pos2 = earth + ((secondrot/360) * earth)
+earth_standard_pos3 = earth + ((firstrot/360) * earth)
+earth_standard_neg1 = earth - ((firstrot/360) * earth)
+earth_standard_neg2 = earth - ((secondrot/360) * earth)
+earth_standard_neg3 = earth - ((thirdrot/360) * earth)
+
+moon_standard_pos1 = moon + ((thirdrot/360) * moon)
+moon_standard_pos2 = moon + ((secondrot/360) * moon)
+moon_standard_pos3 = moon + ((firstrot/360) * moon)
+moon_standard_neg1 = moon - ((firstrot/360) * moon)
+moon_standard_neg2 = moon - ((secondrot/360) * moon)
+moon_standard_neg3 = moon - ((thirdrot/360) * moon)
+
+mercury_standard_pos1 = mercury + ((thirdrot/360) * mercury)
+mercury_standard_pos2 = mercury + ((secondrot/360) * mercury)
+mercury_standard_pos3 = mercury + ((firstrot/360) * mercury)
+mercury_standard_neg1 = mercury - ((firstrot/360) * mercury)
+mercury_standard_neg2 = mercury - ((secondrot/360) * mercury)
+mercury_standard_neg3 = mercury - ((thirdrot/360) * mercury)
+
+venus_standard_pos1 = venus + ((thirdrot/360) * venus)
+venus_standard_pos2 = venus + ((secondrot/360) * venus)
+venus_standard_pos3 = venus + ((firstrot/360) * venus)
+venus_standard_neg1 = venus - ((firstrot/360) * venus)
+venus_standard_neg2 = venus - ((secondrot/360) * venus)
+venus_standard_neg3 = venus - ((thirdrot/360) * venus)
+
+mars_standard_pos1 = mars + ((thirdrot/360) * mars)
+mars_standard_pos2 = mars + ((secondrot/360) * mars)
+mars_standard_pos3 = mars + ((firstrot/360) * mars)
+mars_standard_neg1 = mars - ((firstrot/360) * mars)
+mars_standard_neg2 = mars - ((secondrot/360) * mars)
+mars_standard_neg3 = mars - ((thirdrot/360) * mars)
+
+jupiter_standard_pos1 = jupiter + ((thirdrot/360) * jupiter)
+jupiter_standard_pos2 = jupiter + ((secondrot/360) * jupiter)
+jupiter_standard_pos3 = jupiter + ((firstrot/360) * jupiter)
+jupiter_standard_neg1 = jupiter - ((firstrot/360) * jupiter)
+jupiter_standard_neg2 = jupiter - ((secondrot/360) * jupiter)
+jupiter_standard_neg3 = jupiter - ((thirdrot/360) * jupiter)
+
+saturn_standard_pos1 = saturn + ((thirdrot/360) * saturn)
+saturn_standard_pos2 = saturn + ((secondrot/360) * saturn)
+saturn_standard_pos3 = saturn + ((firstrot/360) * saturn)
+saturn_standard_neg1 = saturn - ((firstrot/360) * saturn)
+saturn_standard_neg2 = saturn - ((secondrot/360) * saturn)
+saturn_standard_neg3 = saturn - ((thirdrot/360) * saturn)
+
+uranus_standard_pos1 = uranus + ((thirdrot/360) * uranus)
+uranus_standard_pos2 = uranus + ((secondrot/360) * uranus)
+uranus_standard_pos3 = uranus + ((firstrot/360) * uranus)
+uranus_standard_neg1 = uranus - ((firstrot/360) * uranus)
+uranus_standard_neg2 = uranus - ((secondrot/360) * uranus)
+uranus_standard_neg3 = uranus - ((thirdrot/360) * uranus)
+
+neptune_standard_pos1 = neptune + ((thirdrot/360) * neptune)
+neptune_standard_pos2 = neptune + ((secondrot/360) * neptune)
+neptune_standard_pos3 = neptune + ((firstrot/360) * neptune)
+neptune_standard_neg1 = neptune - ((firstrot/360) * neptune)
+neptune_standard_neg2 = neptune - ((secondrot/360) * neptune)
+neptune_standard_neg3 = neptune - ((thirdrot/360) * neptune)
+
+plot(earthswitch and thirdrotswitch ? (guideoptions == "Harmonic" and earth_harmonic_pos2 >= 0 ? earth_harmonic_pos2 : guideoptions == "Standard" and earth_standard_pos1 >= 0 ? earth_standard_pos1 : na) : na, linewidth=1, style=circles, title="Earth Positive Offset 1", offset=projection, transp=00, join=false, color=earthcolor)
+plot(earthswitch and secondrotswitch ? (guideoptions == "Harmonic" and earth_harmonic_pos3 >= 0 ? earth_harmonic_pos3 : guideoptions == "Standard" and earth_standard_pos2 >= 0 ? earth_standard_pos2 : na) : na, linewidth=1, style=circles, title="Earth Positive Offset 2", offset=projection, transp=00, join=false, color=earthcolor)
+plot(earthswitch and firstrotswitch ? (guideoptions == "Harmonic" and earth_harmonic_pos4 >= 0 ? earth_harmonic_pos4 : guideoptions == "Standard" and earth_standard_pos3 >= 0 ? earth_standard_pos3 : na) : na, linewidth=1, style=circles, title="Earth Positive Offset 3", offset=projection, transp=00, join=false, color=earthcolor)
+plot(earthswitch and firstrotswitch ? (guideoptions == "Harmonic" and earth_harmonic_neg2 >= 0 ? earth_harmonic_neg2 : guideoptions == "Standard" and earth_standard_neg1 >= 0 ? earth_standard_neg1 : na) : na, linewidth=1, style=circles, title="Earth Negative Offset 1", offset=projection, transp=00, join=false, color=earthcolor)
+plot(earthswitch and secondrotswitch ? (guideoptions == "Harmonic" and earth_harmonic_neg3 >= 0 ? earth_harmonic_neg3 : guideoptions == "Standard" and earth_standard_neg2 >= 0 ? earth_standard_neg2 : na) : na, linewidth=1, style=circles, title="Earth Negative Offset 2", offset=projection, transp=00, join=false, color=earthcolor)
+plot(earthswitch and thirdrotswitch ? (guideoptions == "Harmonic" and earth_harmonic_neg4 >= 0 ? earth_harmonic_neg4 : guideoptions == "Standard" and earth_standard_neg3 >= 0 ? earth_standard_neg3 : na) : na, linewidth=1, style=circles, title="Earth Negative Offset 3", offset=projection, transp=00, join=false, color=earthcolor)
+
+plot(moonswitch and thirdrotswitch ? (guideoptions == "Harmonic" and moon_harmonic_pos2 >= 0 ? moon_harmonic_pos2 : guideoptions == "Standard" and moon_standard_pos1 >= 0 ? moon_standard_pos1 : na) : na, linewidth=1, style=circles, title="Moon Positive Offset 1", offset=projection, transp=00, join=false, color=mooncolor)
+plot(moonswitch and secondrotswitch ? (guideoptions == "Harmonic" and moon_harmonic_pos3 >= 0 ? moon_harmonic_pos3 : guideoptions == "Standard" and moon_standard_pos2 >= 0 ? moon_standard_pos2 : na) : na, linewidth=1, style=circles, title="Moon Positive Offset 2", offset=projection, transp=00, join=false, color=mooncolor)
+plot(moonswitch and firstrotswitch ? (guideoptions == "Harmonic" and moon_harmonic_pos4 >= 0 ? moon_harmonic_pos4 : guideoptions == "Standard" and moon_standard_pos3 >= 0 ? moon_standard_pos3 : na) : na, linewidth=1, style=circles, title="Moon Positive Offset 3", offset=projection, transp=00, join=false, color=mooncolor)
+plot(moonswitch and firstrotswitch ? (guideoptions == "Harmonic" and moon_harmonic_neg2 >= 0 ? moon_harmonic_neg2 : guideoptions == "Standard" and moon_standard_neg1 >= 0 ? moon_standard_neg1 : na) : na, linewidth=1, style=circles, title="Moon Negative Offset 1", offset=projection, transp=00, join=false, color=mooncolor)
+plot(moonswitch and secondrotswitch ? (guideoptions == "Harmonic" and moon_harmonic_neg3 >= 0 ? moon_harmonic_neg3 : guideoptions == "Standard" and moon_standard_neg2 >= 0 ? moon_standard_neg2 : na) : na, linewidth=1, style=circles, title="Moon Negative Offset 2", offset=projection, transp=00, join=false, color=mooncolor)
+plot(moonswitch and thirdrotswitch ? (guideoptions == "Harmonic" and moon_harmonic_neg4 >= 0 ? moon_harmonic_neg4 : guideoptions == "Standard" and moon_standard_neg3 >= 0 ? moon_standard_neg3 : na) : na, linewidth=1, style=circles, title="Moon Negative Offset 3", offset=projection, transp=00, join=false, color=mooncolor)
+
+plot(mercuryswitch and thirdrotswitch ? (guideoptions == "Harmonic" and mercury_harmonic_pos2 >= 0 ? mercury_harmonic_pos2 : guideoptions == "Standard" and mercury_standard_pos1 >= 0 ? mercury_standard_pos1 : na) : na, linewidth=1, style=circles, title="Mercury Positive Offset 1", offset=projection, transp=00, join=false, color=mercurycolor)
+plot(mercuryswitch and secondrotswitch ? (guideoptions == "Harmonic" and mercury_harmonic_pos3 >= 0 ? mercury_harmonic_pos3 : guideoptions == "Standard" and mercury_standard_pos2 >= 0 ? mercury_standard_pos2 : na) : na, linewidth=1, style=circles, title="Mercury Positive Offset 2", offset=projection, transp=00, join=false, color=mercurycolor)
+plot(mercuryswitch and firstrotswitch ? (guideoptions == "Harmonic" and mercury_harmonic_pos4 >= 0 ? mercury_harmonic_pos4 : guideoptions == "Standard" and mercury_standard_pos3 >= 0 ? mercury_standard_pos3 : na) : na, linewidth=1, style=circles, title="Mercury Positive Offset 3", offset=projection, transp=00, join=false, color=mercurycolor)
+plot(mercuryswitch and firstrotswitch ? (guideoptions == "Harmonic" and mercury_harmonic_neg2 >= 0 ? mercury_harmonic_neg2 : guideoptions == "Standard" and mercury_standard_neg1 >= 0 ? mercury_standard_neg1 : na) : na, linewidth=1, style=circles, title="Mercury Negative Offset 1", offset=projection, transp=00, join=false, color=mercurycolor)
+plot(mercuryswitch and secondrotswitch ? (guideoptions == "Harmonic" and mercury_harmonic_neg3 >= 0 ? mercury_harmonic_neg3 : guideoptions == "Standard" and mercury_standard_neg2 >= 0 ? mercury_standard_neg2 : na) : na, linewidth=1, style=circles, title="Mercury Negative Offset 2", offset=projection, transp=00, join=false, color=mercurycolor)
+plot(mercuryswitch and thirdrotswitch ? (guideoptions == "Harmonic" and mercury_harmonic_neg4 >= 0 ? mercury_harmonic_neg4 : guideoptions == "Standard" and mercury_standard_neg3 >= 0 ? mercury_standard_neg3 : na) : na, linewidth=1, style=circles, title="Mercury Negative Offset 3", offset=projection, transp=00, join=false, color=mercurycolor)
+
+plot(venusswitch and thirdrotswitch ? (guideoptions == "Harmonic" and venus_harmonic_pos2 >= 0 ? venus_harmonic_pos2 : guideoptions == "Standard" and venus_standard_pos1 >= 0 ? venus_standard_pos1 : na) : na, linewidth=1, style=circles, title="Venus Positive Offset 1", offset=projection, transp=00, join=false, color=venuscolor)
+plot(venusswitch and secondrotswitch ? (guideoptions == "Harmonic" and venus_harmonic_pos3 >= 0 ? venus_harmonic_pos3 : guideoptions == "Standard" and venus_standard_pos2 >= 0 ? venus_standard_pos2 : na) : na, linewidth=1, style=circles, title="Venus Positive Offset 2", offset=projection, transp=00, join=false, color=venuscolor)
+plot(venusswitch and firstrotswitch ? (guideoptions == "Harmonic" and venus_harmonic_pos4 >= 0 ? venus_harmonic_pos4 : guideoptions == "Standard" and venus_standard_pos3 >= 0 ? venus_standard_pos3 : na) : na, linewidth=1, style=circles, title="Venus Positive Offset 3", offset=projection, transp=00, join=false, color=venuscolor)
+plot(venusswitch and firstrotswitch ? (guideoptions == "Harmonic" and venus_harmonic_neg2 >= 0 ? venus_harmonic_neg2 : guideoptions == "Standard" and venus_standard_neg1 >= 0 ? venus_standard_neg1 : na) : na, linewidth=1, style=circles, title="Venus Negative Offset 1", offset=projection, transp=00, join=false, color=venuscolor)
+plot(venusswitch and secondrotswitch ? (guideoptions == "Harmonic" and venus_harmonic_neg3 >= 0 ? venus_harmonic_neg3 : guideoptions == "Standard" and venus_standard_neg2 >= 0 ? venus_standard_neg2 : na) : na, linewidth=1, style=circles, title="Venus Negative Offset 2", offset=projection, transp=00, join=false, color=venuscolor)
+plot(venusswitch and thirdrotswitch ? (guideoptions == "Harmonic" and venus_harmonic_neg4 >= 0 ? venus_harmonic_neg4 : guideoptions == "Standard" and venus_standard_neg3 >= 0 ? venus_standard_neg3 : na) : na, linewidth=1, style=circles, title="Venus Negative Offset 3", offset=projection, transp=00, join=false, color=venuscolor)
+
+plot(marsswitch and thirdrotswitch ? (guideoptions == "Harmonic" and mars_harmonic_pos2 >= 0 ? mars_harmonic_pos2 : guideoptions == "Standard" and mars_standard_pos1 >= 0 ? mars_standard_pos1 : na) : na, linewidth=1, style=circles, title="Mars Positive Offset 1", offset=projection, transp=00, join=false, color=marscolor)
+plot(marsswitch and secondrotswitch ? (guideoptions == "Harmonic" and mars_harmonic_pos3 >= 0 ? mars_harmonic_pos3 : guideoptions == "Standard" and mars_standard_pos2 >= 0 ? mars_standard_pos2 : na) : na, linewidth=1, style=circles, title="Mars Positive Offset 2", offset=projection, transp=00, join=false, color=marscolor)
+plot(marsswitch and firstrotswitch ? (guideoptions == "Harmonic" and mars_harmonic_pos4 >= 0 ? mars_harmonic_pos4 : guideoptions == "Standard" and mars_standard_pos3 >= 0 ? mars_standard_pos3 : na) : na, linewidth=1, style=circles, title="Mars Positive Offset 3", offset=projection, transp=00, join=false, color=marscolor)
+plot(marsswitch and firstrotswitch ? (guideoptions == "Harmonic" and mars_harmonic_neg2 >= 0 ? mars_harmonic_neg2 : guideoptions == "Standard" and mars_standard_neg1 >= 0 ? mars_standard_neg1 : na) : na, linewidth=1, style=circles, title="Mars Negative Offset 1", offset=projection, transp=00, join=false, color=marscolor)
+plot(marsswitch and secondrotswitch ? (guideoptions == "Harmonic" and mars_harmonic_neg3 >= 0 ? mars_harmonic_neg3 : guideoptions == "Standard" and mars_standard_neg2 >= 0 ? mars_standard_neg2 : na) : na, linewidth=1, style=circles, title="Mars Negative Offset 2", offset=projection, transp=00, join=false, color=marscolor)
+plot(marsswitch and thirdrotswitch ? (guideoptions == "Harmonic" and mars_harmonic_neg4 >= 0 ? mars_harmonic_neg4 : guideoptions == "Standard" and mars_standard_neg3 >= 0 ? mars_standard_neg3 : na) : na, linewidth=1, style=circles, title="Mars Negative Offset 3", offset=projection, transp=00, join=false, color=marscolor)
+
+plot(jupiterswitch and thirdrotswitch ? (guideoptions == "Harmonic" and jupiter_harmonic_pos2 >= 0 ? jupiter_harmonic_pos2 : guideoptions == "Standard" and jupiter_standard_pos1 >= 0 ? jupiter_standard_pos1 : na) : na, linewidth=1, style=circles, title="Jupiter Positive Offset 1", offset=projection, transp=00, join=false, color=jupitercolor)
+plot(jupiterswitch and secondrotswitch ? (guideoptions == "Harmonic" and jupiter_harmonic_pos3 >= 0 ? jupiter_harmonic_pos3 : guideoptions == "Standard" and jupiter_standard_pos2 >= 0 ? jupiter_standard_pos2 : na) : na, linewidth=1, style=circles, title="Jupiter Positive Offset 2", offset=projection, transp=00, join=false, color=jupitercolor)
+plot(jupiterswitch and firstrotswitch ? (guideoptions == "Harmonic" and jupiter_harmonic_pos4 >= 0 ? jupiter_harmonic_pos4 : guideoptions == "Standard" and jupiter_standard_pos3 >= 0 ? jupiter_standard_pos3 : na) : na, linewidth=1, style=circles, title="Jupiter Positive Offset 3", offset=projection, transp=00, join=false, color=jupitercolor)
+plot(jupiterswitch and firstrotswitch ? (guideoptions == "Harmonic" and jupiter_harmonic_neg2 >= 0 ? jupiter_harmonic_neg2 : guideoptions == "Standard" and jupiter_standard_neg1 >= 0 ? jupiter_standard_neg1 : na) : na, linewidth=1, style=circles, title="Jupiter Negative Offset 1", offset=projection, transp=00, join=false, color=jupitercolor)
+plot(jupiterswitch and secondrotswitch ? (guideoptions == "Harmonic" and jupiter_harmonic_neg3 >= 0 ? jupiter_harmonic_neg3 : guideoptions == "Standard" and jupiter_standard_neg2 >= 0 ? jupiter_standard_neg2 : na) : na, linewidth=1, style=circles, title="Jupiter Negative Offset 2", offset=projection, transp=00, join=false, color=jupitercolor)
+plot(jupiterswitch and thirdrotswitch ? (guideoptions == "Harmonic" and jupiter_harmonic_neg4 >= 0 ? jupiter_harmonic_neg4 : guideoptions == "Standard" and jupiter_standard_neg3 >= 0 ? jupiter_standard_neg3 : na) : na, linewidth=1, style=circles, title="Jupiter Negative Offset 3", offset=projection, transp=00, join=false, color=jupitercolor)
+
+plot(saturnswitch and thirdrotswitch ? (guideoptions == "Harmonic" and saturn_harmonic_pos2 >= 0 ? saturn_harmonic_pos2 : guideoptions == "Standard" and saturn_standard_pos1 >= 0 ? saturn_standard_pos1 : na) : na, linewidth=1, style=circles, title="Saturn Positive Offset 1", offset=projection, transp=00, join=false, color=saturncolor)
+plot(saturnswitch and secondrotswitch ? (guideoptions == "Harmonic" and saturn_harmonic_pos3 >= 0 ? saturn_harmonic_pos3 : guideoptions == "Standard" and saturn_standard_pos2 >= 0 ? saturn_standard_pos2 : na) : na, linewidth=1, style=circles, title="Saturn Positive Offset 2", offset=projection, transp=00, join=false, color=saturncolor)
+plot(saturnswitch and firstrotswitch ? (guideoptions == "Harmonic" and saturn_harmonic_pos4 >= 0 ? saturn_harmonic_pos4 : guideoptions == "Standard" and saturn_standard_pos3 >= 0 ? saturn_standard_pos3 : na) : na, linewidth=1, style=circles, title="Saturn Positive Offset 3", offset=projection, transp=00, join=false, color=saturncolor)
+plot(saturnswitch and firstrotswitch ? (guideoptions == "Harmonic" and saturn_harmonic_neg2 >= 0 ? saturn_harmonic_neg2 : guideoptions == "Standard" and saturn_standard_neg1 >= 0 ? saturn_standard_neg1 : na) : na, linewidth=1, style=circles, title="Saturn Negative Offset 1", offset=projection, transp=00, join=false, color=saturncolor)
+plot(saturnswitch and secondrotswitch ? (guideoptions == "Harmonic" and saturn_harmonic_neg3 >= 0 ? saturn_harmonic_neg3 : guideoptions == "Standard" and saturn_standard_neg2 >= 0 ? saturn_standard_neg2 : na) : na, linewidth=1, style=circles, title="Saturn Negative Offset 2", offset=projection, transp=00, join=false, color=saturncolor)
+plot(saturnswitch and thirdrotswitch ? (guideoptions == "Harmonic" and saturn_harmonic_neg4 >= 0 ? saturn_harmonic_neg4 : guideoptions == "Standard" and saturn_standard_neg3 >= 0 ? saturn_standard_neg3 : na) : na, linewidth=1, style=circles, title="Saturn Negative Offset 3", offset=projection, transp=00, join=false, color=saturncolor)
+
+plot(uranusswitch and thirdrotswitch ? (guideoptions == "Harmonic" and uranus_harmonic_pos2 >= 0 ? uranus_harmonic_pos2 : guideoptions == "Standard" and uranus_standard_pos1 >= 0 ? uranus_standard_pos1 : na) : na, linewidth=1, style=circles, title="Uranus Positive Offset 1", offset=projection, transp=00, join=false, color=uranuscolor)
+plot(uranusswitch and secondrotswitch ? (guideoptions == "Harmonic" and uranus_harmonic_pos3 >= 0 ? uranus_harmonic_pos3 : guideoptions == "Standard" and uranus_standard_pos2 >= 0 ? uranus_standard_pos2 : na) : na, linewidth=1, style=circles, title="Uranus Positive Offset 2", offset=projection, transp=00, join=false, color=uranuscolor)
+plot(uranusswitch and firstrotswitch ? (guideoptions == "Harmonic" and uranus_harmonic_pos4 >= 0 ? uranus_harmonic_pos4 : guideoptions == "Standard" and uranus_standard_pos3 >= 0 ? uranus_standard_pos3 : na) : na, linewidth=1, style=circles, title="Uranus Positive Offset 3", offset=projection, transp=00, join=false, color=uranuscolor)
+plot(uranusswitch and firstrotswitch ? (guideoptions == "Harmonic" and uranus_harmonic_neg2 >= 0 ? uranus_harmonic_neg2 : guideoptions == "Standard" and uranus_standard_neg1 >= 0 ? uranus_standard_neg1 : na) : na, linewidth=1, style=circles, title="Uranus Negative Offset 1", offset=projection, transp=00, join=false, color=uranuscolor)
+plot(uranusswitch and secondrotswitch ? (guideoptions == "Harmonic" and uranus_harmonic_neg3 >= 0 ? uranus_harmonic_neg3 : guideoptions == "Standard" and uranus_standard_neg2 >= 0 ? uranus_standard_neg2 : na) : na, linewidth=1, style=circles, title="Uranus Negative Offset 2", offset=projection, transp=00, join=false, color=uranuscolor)
+plot(uranusswitch and thirdrotswitch ? (guideoptions == "Harmonic" and uranus_harmonic_neg4 >= 0 ? uranus_harmonic_neg4 : guideoptions == "Standard" and uranus_standard_neg3 >= 0 ? uranus_standard_neg3 : na) : na, linewidth=1, style=circles, title="Uranus Negative Offset 3", offset=projection, transp=00, join=false, color=uranuscolor)
+
+plot(neptuneswitch and thirdrotswitch ? (guideoptions == "Harmonic" and neptune_harmonic_pos2 >= 0 ? neptune_harmonic_pos2 : guideoptions == "Standard" and neptune_standard_pos1 >= 0 ? neptune_standard_pos1 : na) : na, linewidth=1, style=circles, title="Neptune Positive Offset 1", offset=projection, transp=00, join=false, color=neptunecolor)
+plot(neptuneswitch and secondrotswitch ? (guideoptions == "Harmonic" and neptune_harmonic_pos3 >= 0 ? neptune_harmonic_pos3 : guideoptions == "Standard" and neptune_standard_pos2 >= 0 ? neptune_standard_pos2 : na) : na, linewidth=1, style=circles, title="Neptune Positive Offset 2", offset=projection, transp=00, join=false, color=neptunecolor)
+plot(neptuneswitch and firstrotswitch ? (guideoptions == "Harmonic" and neptune_harmonic_pos4 >= 0 ? neptune_harmonic_pos4 : guideoptions == "Standard" and neptune_standard_pos3 >= 0 ? neptune_standard_pos3 : na) : na, linewidth=1, style=circles, title="Neptune Positive Offset 3", offset=projection, transp=00, join=false, color=neptunecolor)
+plot(neptuneswitch and firstrotswitch ? (guideoptions == "Harmonic" and neptune_harmonic_neg2 >= 0 ? neptune_harmonic_neg2 : guideoptions == "Standard" and neptune_standard_neg1 >= 0 ? neptune_standard_neg1 : na) : na, linewidth=1, style=circles, title="Neptune Negative Offset 1", offset=projection, transp=00, join=false, color=neptunecolor)
+plot(neptuneswitch and secondrotswitch ? (guideoptions == "Harmonic" and neptune_harmonic_neg3 >= 0 ? neptune_harmonic_neg3 : guideoptions == "Standard" and neptune_standard_neg2 >= 0 ? neptune_standard_neg2 : na) : na, linewidth=1, style=circles, title="Neptune Negative Offset 2", offset=projection, transp=00, join=false, color=neptunecolor)
+plot(neptuneswitch and thirdrotswitch ? (guideoptions == "Harmonic" and neptune_harmonic_neg4 >= 0 ? neptune_harmonic_neg4 : guideoptions == "Standard" and neptune_standard_neg3 >= 0 ? neptune_standard_neg3 : na) : na, linewidth=1, style=circles, title="Neptune Negative Offset 3", offset=projection, transp=00, join=false, color=neptunecolor)
